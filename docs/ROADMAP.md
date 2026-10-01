@@ -36,6 +36,7 @@ in the roadmap.
 | GPU & perf | [gpu.md](roadmap/gpu.md) | 5 | 0 | CPU counting sort is the bottleneck while the camera moves; gated on TOOL-001 + QUAL-001 |
 | Quality | [quality.md](roadmap/quality.md) | 4 | 0 | No numeric ground truth yet — QUAL-001 golden test is the safety net for GPU work |
 | Tooling & formats | [tools.md](roadmap/tools.md) | 4 | 0 | TOOL-001 bench mode gates the GPU area |
+| Shaders & viz | [viz.md](roadmap/viz.md) | 3 | 2 | Shaders now Slang (`slangc` in build.rs); 10 debug views — guide in [debug-views.md](debug-views.md) |
 
 ![bonsai, dataset camera 0](roadmap/img/core-005-bonsai-cam0.png)
 
@@ -54,6 +55,7 @@ in the roadmap.
 |----|------|-------|
 | `1cb2aa1` | Rasterizer: PLY loader, vulkano splat pipeline, headless + viewer | CORE-001..006 |
 | `59bcc6a` | Data fetch script, README, roadmap docs | CORE-007 |
+| `PENDING` | GLSL → Slang port + debug/visualization views | VIZ-001, VIZ-002 |
 
 Per-commit review: `git show <CL>`. For a merge commit `<merge>`, the branch's
 full diff is `git diff <merge>^1 <merge>^2` and its commits are

@@ -9,7 +9,8 @@ interactive viewer or headless to PNG.
 ## Requirements
 
 - Rust (2024 edition), a Vulkan 1.3 driver (or `VK_KHR_dynamic_rendering`)
-- Vulkan SDK (shaders are compiled at build time via shaderc)
+- Vulkan SDK: shaders are written in [Slang](https://shader-slang.org) and compiled at
+  build time with `slangc` (found via `$SLANGC`, `$VULKAN_SDK/Bin`, or `PATH`)
 
 ## Quick start
 
@@ -28,13 +29,19 @@ Viewer controls: left-drag orbit · right-drag pan · wheel zoom ·
 N / P next / previous dataset camera · R reset · Esc quit.
 Run with `--help` for all options.
 
+## Debug views
+
+Ten visualization modes (depth, opacity, ellipses, point centers, overdraw, …) plus
+splat-scale / opacity / SH knobs, on keys `1`–`0` in the viewer or `--view <name|all>`
+headless. See [docs/debug-views.md](docs/debug-views.md).
+
 ## How it works
 
 1. `src/ply.rs` — parse the PLY, apply activations, precompute 3D covariances.
 2. `src/renderer.rs` — CPU counting sort of splats by view depth (back to front).
-3. `src/shaders/splat.vert` — per instance: project the covariance (EWA),
+3. `src/shaders/splat.slang` (`vsMain`) — per instance: project the covariance (EWA),
    evaluate spherical harmonics, emit a quad aligned with the 2D eigenvectors.
-4. `src/shaders/splat.frag` — Gaussian falloff, premultiplied alpha blending.
+4. `src/shaders/splat.slang` (`fsMain`) — Gaussian falloff, premultiplied alpha blending.
 
 Planned work (GPU sort, compute preprocess, tile rasterizer, tests) is tracked in
 [docs/ROADMAP.md](docs/ROADMAP.md).

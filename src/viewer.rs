@@ -1,9 +1,9 @@
 //! Interactive windowed viewer (winit + swapchain).
 //!
-//! Controls: left-drag orbit, right-drag pan, wheel zoom,
-//! N / P cycle dataset cameras, R reset view, Esc quit.
+//! Controls are listed in `HELP` (printed at startup).
 
 use crate::camera::Orbit;
+use crate::debug::ViewMode;
 use crate::renderer::{Gpu, SplatRenderer};
 use crate::{Args, Framing, ply::Scene};
 use anyhow::Result;
@@ -25,7 +25,20 @@ use winit::{
     window::{Window, WindowId},
 };
 
+const HELP: &str = "viewer controls:
+  left-drag orbit · right-drag pan · wheel zoom · Esc quit
+  N / P       next / previous dataset camera     R  reset view
+  1..9, 0     view: 1 color  2 base-color  3 view-dependent  4 depth  5 opacity
+                    6 ellipses  7 centers  8 anisotropy  9 overdraw  0 quads
+  [ / ]       shrink / grow splats (splat scale)
+  - / =       lower / raise min-opacity filter
+  H           cycle SH degree cap 0..3
+  B           cycle background black / grey / white";
+
+const BACKGROUNDS: [[f32; 4]; 3] = [[0.0, 0.0, 0.0, 1.0], [0.5, 0.5, 0.5, 1.0], [1.0, 1.0, 1.0, 1.0]];
+
 pub fn run(args: Args, scene: Scene, framing: Framing) -> Result<()> {
+    eprintln!("{HELP}");
     let event_loop = EventLoop::new()?;
     let exts = Surface::required_extensions(&event_loop)?;
     let el = &event_loop;
@@ -100,6 +113,7 @@ impl App {
         let mut renderer = SplatRenderer::new(&self.gpu, &self.scene, format)?;
         let bg = self.args.bg;
         renderer.background = [bg[0], bg[1], bg[2], 1.0];
+        renderer.debug = self.args.debug;
         Ok(RenderContext {
             window,
             swapchain,
@@ -173,9 +187,10 @@ impl App {
         let dt = rcx.fps_timer.elapsed().as_secs_f32();
         if dt > 0.5 {
             rcx.window.set_title(&format!(
-                "gaussian-splat-rasterizer — {:.1} fps — cam {}",
+                "gaussian-splat-rasterizer — {:.1} fps — cam {} — {}",
                 rcx.frames as f32 / dt,
-                rcx.cam_index
+                rcx.cam_index,
+                rcx.renderer.debug.summary()
             ));
             rcx.frames = 0;
             rcx.fps_timer = Instant::now();
@@ -234,6 +249,30 @@ impl App {
                     }
                     Key::Character("r") | Key::Character("R") => {
                         self.orbit = self.framing.orbit(rcx.cam_index);
+                    }
+                    Key::Character(c) if c.len() == 1 && c.as_bytes()[0].is_ascii_digit() => {
+                        // 1..9 select modes 0..8, 0 selects mode 9.
+                        let d = (c.as_bytes()[0] - b'0') as usize;
+                        rcx.renderer.debug.view = ViewMode::ALL[(d + 9) % 10];
+                    }
+                    Key::Character("[") => rcx.renderer.debug.splat_scale *= 0.8,
+                    Key::Character("]") => rcx.renderer.debug.splat_scale *= 1.25,
+                    Key::Character("-") => {
+                        let d = &mut rcx.renderer.debug;
+                        d.min_opacity = (d.min_opacity - 0.05).max(0.0);
+                    }
+                    Key::Character("=") | Key::Character("+") => {
+                        let d = &mut rcx.renderer.debug;
+                        d.min_opacity = (d.min_opacity + 0.05).min(0.95);
+                    }
+                    Key::Character("h") | Key::Character("H") => {
+                        let d = &mut rcx.renderer.debug;
+                        d.sh_max = (d.sh_max + 1) % 4;
+                    }
+                    Key::Character("b") | Key::Character("B") => {
+                        let r = &mut rcx.renderer;
+                        let i = BACKGROUNDS.iter().position(|b| *b == r.background).map_or(0, |i| i + 1);
+                        r.background = BACKGROUNDS[i % BACKGROUNDS.len()];
                     }
                     _ => {}
                 }

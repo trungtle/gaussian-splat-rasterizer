@@ -1,10 +1,12 @@
 mod camera;
+mod debug;
 mod ply;
 mod renderer;
 mod viewer;
 
 use anyhow::{Context, Result, bail};
 use camera::{Camera, DatasetCamera, Orbit};
+use debug::{DebugSettings, ViewMode};
 use glam::{Mat3, Vec3};
 use std::path::PathBuf;
 
@@ -19,7 +21,15 @@ options:
                             dataset camera keeps its aspect at width W)
   --bg <r,g,b>              background color in 0..1 (default 0,0,0)
   --up <x,y,z>              world up axis (default: from cameras, else 0,1,0)
-  --orbit <deg>             headless: rotate the start view around the scene by deg";
+  --orbit <deg>             headless: rotate the start view around the scene by deg
+
+debug / visualization:
+  --view <mode|all>         color, base-color, view-dependent, depth, opacity, ellipses,
+                            centers, anisotropy, overdraw, quads; `all` (headless) writes
+                            one <out-stem>-<mode>.png per mode
+  --splat-scale <s>         multiply every Gaussian's scale (default 1)
+  --min-opacity <a>         hide splats with opacity below a (default 0)
+  --sh <deg>                cap the SH degree used for color (0..3)";
 
 pub struct Args {
     pub ply: PathBuf,
@@ -30,6 +40,9 @@ pub struct Args {
     pub bg: [f32; 3],
     pub up: Option<Vec3>,
     pub orbit_deg: f32,
+    pub debug: DebugSettings,
+    /// Headless: render every view mode.
+    pub all_views: bool,
 }
 
 fn parse_vec3(s: &str) -> Result<[f32; 3]> {
@@ -51,6 +64,8 @@ fn parse_args() -> Result<Args> {
         bg: [0.0; 3],
         up: None,
         orbit_deg: 0.0,
+        debug: DebugSettings::default(),
+        all_views: false,
     };
     let mut ply = None;
     while let Some(arg) = it.next() {
@@ -71,6 +86,14 @@ fn parse_args() -> Result<Args> {
             "--bg" => a.bg = parse_vec3(&val()?)?,
             "--up" => a.up = Some(Vec3::from(parse_vec3(&val()?)?)),
             "--orbit" => a.orbit_deg = val()?.parse()?,
+            "--view" => match val()?.as_str() {
+                "all" => a.all_views = true,
+                v => a.debug.view = ViewMode::from_name(v).with_context(|| format!("unknown view {v}
+{USAGE}"))?,
+            },
+            "--splat-scale" => a.debug.splat_scale = val()?.parse()?,
+            "--min-opacity" => a.debug.min_opacity = val()?.parse()?,
+            "--sh" => a.debug.sh_max = val()?.parse()?,
             s if s.starts_with('-') => bail!("unknown option {s}\n{USAGE}"),
             s => ply = Some(PathBuf::from(s)),
         }
@@ -188,10 +211,22 @@ fn headless(args: &Args, scene: &ply::Scene, framing: &Framing, out: &PathBuf) -
             o.camera(h)
         }
     };
-    let t = std::time::Instant::now();
-    let pixels = renderer::render_offscreen(&gpu, &mut r, &cam, w, h)?;
-    eprintln!("rendered {w}x{h} in {:.2?}", t.elapsed());
-    image::save_buffer(out, &pixels, w, h, image::ExtendedColorType::Rgba8)?;
-    eprintln!("wrote {}", out.display());
+    let jobs: Vec<(ViewMode, PathBuf)> = if args.all_views {
+        let stem = out.file_stem().unwrap_or_default().to_string_lossy();
+        ViewMode::ALL
+            .into_iter()
+            .map(|m| (m, out.with_file_name(format!("{stem}-{}.png", m.name()))))
+            .collect()
+    } else {
+        vec![(args.debug.view, out.clone())]
+    };
+    for (view, path) in jobs {
+        r.debug = DebugSettings { view, ..args.debug };
+        let t = std::time::Instant::now();
+        let pixels = renderer::render_offscreen(&gpu, &mut r, &cam, w, h)?;
+        eprintln!("rendered {w}x{h} [{}] in {:.2?}", r.debug.summary(), t.elapsed());
+        image::save_buffer(&path, &pixels, w, h, image::ExtendedColorType::Rgba8)?;
+        eprintln!("wrote {}", path.display());
+    }
     Ok(())
 }

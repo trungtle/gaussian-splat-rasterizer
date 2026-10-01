@@ -16,6 +16,11 @@ Rust + vulkano 0.35 3D Gaussian Splatting renderer. See README.md for usage.
 
 ## Conventions
 
+- Shaders are Slang (`src/shaders/splat.slang`), built by `build.rs` via `slangc`.
+  Use `SV_VulkanVertexID`/`SV_VulkanInstanceID`; `Push` in `src/renderer.rs` mirrors
+  the Slang struct by hand. View-mode order = `ViewMode::ALL` in `src/debug.rs`.
+  See `docs/roadmap/viz.md` Decisions.
+
 - Camera space is COLMAP: +x right, +y down, +z forward (== Vulkan clip space).
 - Render targets are UNORM, never SRGB (3DGS blends in display space).
 - Sample data lives in `data/` (gitignored); fetch with `python scripts/fetch_data.py`.

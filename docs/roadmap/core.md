@@ -4,7 +4,8 @@ The milestone-1 rasterizer is working end to end: a 3DGS PLY loads into GPU
 storage buffers, splats are depth-sorted on the CPU (16-bit counting sort,
 only re-run when the view matrix changes), and one instanced draw
 (6 vertices × N instances, no vertex buffers) expands each Gaussian into an
-eigenvector-aligned quad in `src/shaders/splat.vert`. The fragment shader
+eigenvector-aligned quad in the vertex stage of `src/shaders/splat.slang`
+(originally GLSL; ported to Slang in VIZ-001). The fragment shader
 evaluates `exp(-0.5·|uv|²)` in eigen-space and blends premultiplied alpha
 back-to-front. Both a headless PNG path (`--out`) and a winit viewer exist.
 

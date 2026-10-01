@@ -24,3 +24,22 @@ desktop discrete GPU.**
   ray-intersection target), headless path.
 
 **CL: `59bcc6a`** — CORE-007 (`scripts/fetch_data.py`), README, and this roadmap.
+
+## Slang shaders + debug views (VIZ-001..002)
+
+**Status 2026-10-01: COMPLETE — the Slang port matches the GLSL render (max diff
+1/255, mean 1e-4); 10 debug views render headless and in the viewer.**
+
+**CL: `PENDING`** — VIZ-001, VIZ-002.
+
+- `src/shaders/splat.slang` replaces `splat.vert` / `splat.frag`: same math,
+  plus the view-mode switch, Turbo colormap, and splat-scale / min-opacity /
+  SH-cap knobs.
+- `build.rs` runs `slangc` per entry point to `$OUT_DIR/*.spv`;
+  `src/renderer.rs` loads the SPIR-V with `ShaderModule::new`, has a
+  hand-written `Push` struct and a second additive pipeline for overdraw, and
+  tracks the robust depth range during the sort.
+- `src/debug.rs` adds `ViewMode` and `DebugSettings`. `src/main.rs` adds
+  `--view`, `--splat-scale`, `--min-opacity`, `--sh`. `src/viewer.rs` adds the
+  key bindings (help printed at startup).
+- Gotcha found: `SV_InstanceID` needs DrawParameters; use `SV_VulkanInstanceID`.

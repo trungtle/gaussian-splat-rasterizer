@@ -6,6 +6,7 @@
 //! eigen-aligned quad in the vertex shader. Blending is premultiplied alpha.
 
 use crate::camera::Camera;
+use crate::debug::DebugSettings;
 use crate::ply::{SH_COEFFS, Scene, Splat};
 use anyhow::{Context, Result, anyhow};
 use glam::{Mat4, Vec3};
@@ -45,14 +46,74 @@ use vulkano::{
         layout::PipelineDescriptorSetLayoutCreateInfo,
     },
     render_pass::{AttachmentLoadOp, AttachmentStoreOp},
+    shader::{ShaderModule, ShaderModuleCreateInfo},
     sync::GpuFuture,
 };
 
-mod vs {
-    vulkano_shaders::shader! { ty: "vertex", path: "src/shaders/splat.vert" }
+/// SPIR-V compiled from src/shaders/splat.slang by build.rs.
+const VS_SPV: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/splat.vert.spv"));
+const FS_SPV: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/splat.frag.spv"));
+
+/// Push constants; must match `Push` in splat.slang (all members 16-byte aligned).
+#[repr(C)]
+#[derive(BufferContents, Clone, Copy)]
+struct Push {
+    view: [[f32; 4]; 4],
+    cam_pos: [f32; 4],
+    intrinsics: [f32; 4],
+    dbg: [i32; 4],
+    params: [f32; 4],
 }
-mod fs {
-    vulkano_shaders::shader! { ty: "fragment", path: "src/shaders/splat.frag" }
+
+fn load_stage(device: &Arc<Device>, spv: &[u8]) -> Result<PipelineShaderStageCreateInfo> {
+    let words = vulkano::shader::spirv::bytes_to_words(spv)?;
+    let module = unsafe { ShaderModule::new(device.clone(), ShaderModuleCreateInfo::new(&words))? };
+    // slangc names a single compiled entry point "main".
+    let entry = module
+        .entry_point("main")
+        .or_else(|| module.single_entry_point())
+        .ok_or_else(|| anyhow!("shader module has no entry point"))?;
+    Ok(PipelineShaderStageCreateInfo::new(entry))
+}
+
+fn make_pipeline(device: &Arc<Device>, format: Format, additive: bool) -> Result<Arc<GraphicsPipeline>> {
+    let stages = [load_stage(device, VS_SPV)?, load_stage(device, FS_SPV)?];
+    let layout = PipelineLayout::new(
+        device.clone(),
+        PipelineDescriptorSetLayoutCreateInfo::from_stages(&stages)
+            .into_pipeline_layout_create_info(device.clone())?,
+    )?;
+    let dst = if additive { BlendFactor::One } else { BlendFactor::OneMinusSrcAlpha };
+    let blend = AttachmentBlend {
+        src_color_blend_factor: BlendFactor::One,
+        dst_color_blend_factor: dst,
+        color_blend_op: BlendOp::Add,
+        src_alpha_blend_factor: BlendFactor::One,
+        dst_alpha_blend_factor: dst,
+        alpha_blend_op: BlendOp::Add,
+    };
+    Ok(GraphicsPipeline::new(
+        device.clone(),
+        None,
+        GraphicsPipelineCreateInfo {
+            stages: stages.into_iter().collect(),
+            vertex_input_state: Some(VertexInputState::default()),
+            input_assembly_state: Some(InputAssemblyState::default()),
+            viewport_state: Some(ViewportState::default()),
+            rasterization_state: Some(RasterizationState::default()),
+            multisample_state: Some(MultisampleState::default()),
+            color_blend_state: Some(ColorBlendState::with_attachment_states(
+                1,
+                ColorBlendAttachmentState { blend: Some(blend), ..Default::default() },
+            )),
+            dynamic_state: [vulkano::pipeline::DynamicState::Viewport].into_iter().collect(),
+            subpass: Some(
+                PipelineRenderingCreateInfo { color_attachment_formats: vec![Some(format)], ..Default::default() }
+                    .into(),
+            ),
+            ..GraphicsPipelineCreateInfo::layout(layout)
+        },
+    )?)
 }
 
 pub struct Gpu {
@@ -161,6 +222,8 @@ impl Gpu {
 
 pub struct SplatRenderer {
     pipeline: Arc<GraphicsPipeline>,
+    /// Same shaders with additive blending, for the overdraw view.
+    pipeline_additive: Arc<GraphicsPipeline>,
     splats: Subbuffer<[Splat]>,
     sh: Subbuffer<[f32]>,
     index_alloc: SubbufferAllocator,
@@ -172,50 +235,16 @@ pub struct SplatRenderer {
     sorted: Vec<u32>,
     last_view: Option<Mat4>,
     last_indices: Option<Subbuffer<[u32]>>,
+    /// Robust (2nd..98th percentile) view-depth range of the last sort, for the depth view.
+    depth_range: (f32, f32),
     pub background: [f32; 4],
+    pub debug: DebugSettings,
 }
 
 impl SplatRenderer {
     pub fn new(gpu: &Gpu, scene: &Scene, format: Format) -> Result<Self> {
-        let device = &gpu.device;
-        let vs = vs::load(device.clone())?.entry_point("main").unwrap();
-        let fs = fs::load(device.clone())?.entry_point("main").unwrap();
-        let stages = [PipelineShaderStageCreateInfo::new(vs), PipelineShaderStageCreateInfo::new(fs)];
-        let layout = PipelineLayout::new(
-            device.clone(),
-            PipelineDescriptorSetLayoutCreateInfo::from_stages(&stages)
-                .into_pipeline_layout_create_info(device.clone())?,
-        )?;
-        let blend = AttachmentBlend {
-            src_color_blend_factor: BlendFactor::One,
-            dst_color_blend_factor: BlendFactor::OneMinusSrcAlpha,
-            color_blend_op: BlendOp::Add,
-            src_alpha_blend_factor: BlendFactor::One,
-            dst_alpha_blend_factor: BlendFactor::OneMinusSrcAlpha,
-            alpha_blend_op: BlendOp::Add,
-        };
-        let pipeline = GraphicsPipeline::new(
-            device.clone(),
-            None,
-            GraphicsPipelineCreateInfo {
-                stages: stages.into_iter().collect(),
-                vertex_input_state: Some(VertexInputState::default()),
-                input_assembly_state: Some(InputAssemblyState::default()),
-                viewport_state: Some(ViewportState::default()),
-                rasterization_state: Some(RasterizationState::default()),
-                multisample_state: Some(MultisampleState::default()),
-                color_blend_state: Some(ColorBlendState::with_attachment_states(
-                    1,
-                    ColorBlendAttachmentState { blend: Some(blend), ..Default::default() },
-                )),
-                dynamic_state: [vulkano::pipeline::DynamicState::Viewport].into_iter().collect(),
-                subpass: Some(
-                    PipelineRenderingCreateInfo { color_attachment_formats: vec![Some(format)], ..Default::default() }
-                        .into(),
-                ),
-                ..GraphicsPipelineCreateInfo::layout(layout)
-            },
-        )?;
+        let pipeline = make_pipeline(&gpu.device, format, false)?;
+        let pipeline_additive = make_pipeline(&gpu.device, format, true)?;
 
         let count = scene.splats.len() as u32;
         let splats = gpu.upload(&scene.splats, BufferUsage::STORAGE_BUFFER)?;
@@ -233,6 +262,7 @@ impl SplatRenderer {
 
         Ok(Self {
             pipeline,
+            pipeline_additive,
             splats,
             sh,
             index_alloc,
@@ -243,7 +273,9 @@ impl SplatRenderer {
             sorted: Vec::new(),
             last_view: None,
             last_indices: None,
+            depth_range: (0.2, 100.0),
             background: [0.0, 0.0, 0.0, 1.0],
+            debug: DebugSettings::default(),
         })
     }
 
@@ -281,6 +313,12 @@ impl SplatRenderer {
             self.sorted[*slot as usize] = i as u32;
             *slot += 1;
         }
+        if n > 0 {
+            // `sorted` runs far -> near.
+            let far = depths[self.sorted[n * 2 / 100] as usize];
+            let near = depths[self.sorted[(n * 98 / 100).min(n - 1)] as usize].max(0.2);
+            self.depth_range = (near, far.max(near * 1.01));
+        }
     }
 
     fn indices(&mut self, cam: &Camera) -> Result<Subbuffer<[u32]>> {
@@ -307,7 +345,9 @@ impl SplatRenderer {
     ) -> Result<()> {
         let [w, h, _] = target.image().extent();
         let indices = self.indices(cam)?;
-        let layout = self.pipeline.layout().clone();
+        let dbg = self.debug;
+        let pipeline = if dbg.view.additive() { &self.pipeline_additive } else { &self.pipeline }.clone();
+        let layout = pipeline.layout().clone();
         let set = DescriptorSet::new(
             gpu.desc.clone(),
             layout.set_layouts()[0].clone(),
@@ -318,16 +358,20 @@ impl SplatRenderer {
             ],
             [],
         )?;
-        let push = vs::Push {
+        let push = Push {
             view: cam.view.to_cols_array_2d(),
-            cam_pos: cam.position.extend(self.sh_degree as f32).to_array(),
+            cam_pos: cam.position.extend(self.sh_degree.min(dbg.sh_max) as f32).to_array(),
             intrinsics: [cam.fx, cam.fy, w as f32, h as f32],
+            dbg: [dbg.view.index(), 0, 0, 0],
+            params: [dbg.splat_scale, dbg.min_opacity, self.depth_range.0, self.depth_range.1],
         };
+        // Overdraw accumulates from black so the heat scale is absolute.
+        let clear = if dbg.view.additive() { [0.0, 0.0, 0.0, 1.0] } else { self.background };
         b.begin_rendering(RenderingInfo {
             color_attachments: vec![Some(RenderingAttachmentInfo {
                 load_op: AttachmentLoadOp::Clear,
                 store_op: AttachmentStoreOp::Store,
-                clear_value: Some(self.background.into()),
+                clear_value: Some(clear.into()),
                 ..RenderingAttachmentInfo::image_view(target)
             })],
             ..Default::default()
@@ -338,7 +382,7 @@ impl SplatRenderer {
                 .into_iter()
                 .collect(),
         )?
-        .bind_pipeline_graphics(self.pipeline.clone())?
+        .bind_pipeline_graphics(pipeline)?
         .bind_descriptor_sets(PipelineBindPoint::Graphics, layout.clone(), 0, set)?
         .push_constants(layout, 0, push)?;
         unsafe { b.draw(6, self.count, 0, 0)? };
