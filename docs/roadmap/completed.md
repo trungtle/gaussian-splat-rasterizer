@@ -23,4 +23,4 @@ desktop discrete GPU.**
 - `src/main.rs` — CLI, scene framing (robust radius, up axis,
   ray-intersection target), headless path.
 
-**CL: `PENDING`** — CORE-007 (`scripts/fetch_data.py`), README, and this roadmap.
+**CL: `59bcc6a`** — CORE-007 (`scripts/fetch_data.py`), README, and this roadmap.

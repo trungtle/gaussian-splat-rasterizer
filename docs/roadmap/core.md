@@ -130,7 +130,7 @@ id: CORE-007
 status: done
 epic: io
 deps: []
-cl: PENDING
+cl: 59bcc6a
 -->
 ### CORE-007 — Sample data fetch script
 

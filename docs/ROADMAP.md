@@ -53,7 +53,7 @@ in the roadmap.
 | CL | What | Tasks |
 |----|------|-------|
 | `1cb2aa1` | Rasterizer: PLY loader, vulkano splat pipeline, headless + viewer | CORE-001..006 |
-| `PENDING` | Data fetch script, README, roadmap docs | CORE-007 |
+| `59bcc6a` | Data fetch script, README, roadmap docs | CORE-007 |
 
 Per-commit review: `git show <CL>`. For a merge commit `<merge>`, the branch's
 full diff is `git diff <merge>^1 <merge>^2` and its commits are
