@@ -6,7 +6,7 @@ SDK's `slangc`. The renderer loads the SPIR-V directly; `vulkano-shaders` is
 no longer a dependency. Ten debug views plus scale, opacity, SH and
 background controls are documented in [../debug-views.md](../debug-views.md).
 
-![all views](img/viz-002-all-views.png)
+![all views, annotated](img/viz-002-all-views-annotated.png)
 
 ## Decisions
 
@@ -57,7 +57,8 @@ centers, anisotropy, overdraw, quads), plus splat scale, min opacity, SH cap
 and background cycling. Bound to keys in the viewer; available headless as
 `--view <name|all>`, `--splat-scale`, `--min-opacity` and `--sh`.
 
-Verify: `--view all` writes 10 distinct PNGs ([grid](img/viz-002-all-views.png));
+Verify: `--view all` writes 10 distinct PNGs; `scripts/make_view_grid.py`
+composes the [annotated grid](img/viz-002-all-views-annotated.png);
 the viewer title shows the active settings (210 fps in overdraw view).
 
 <!--task

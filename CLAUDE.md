@@ -11,6 +11,8 @@ Rust + vulkano 0.35 3D Gaussian Splatting renderer. See README.md for usage.
 - Visual tasks: capture with the headless path
   (`target/release/gaussian-splat-rasterizer <ply> --out <png> [--cam N] [--orbit deg]`)
   into `docs/roadmap/img/<task-id>-<slug>.png`; before/after pairs for visible changes.
+- After changing a debug view, regenerate the annotated grid with
+  `python scripts/make_view_grid.py` and check that the callouts still land on their features.
 - Feature branches merge with `git merge --no-ff`; review a merge with
   `git diff <merge>^1 <merge>^2` and `git log <merge>^1..<merge>^2 --oneline`.
 

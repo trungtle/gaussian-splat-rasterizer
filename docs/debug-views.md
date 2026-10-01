@@ -9,10 +9,13 @@ cargo run --release -- data/bonsai/point_cloud.ply --view depth
 cargo run --release -- data/bonsai/point_cloud.ply --out out/b.png --view all
 ```
 
-![all views](roadmap/img/viz-002-all-views.png)
+![all views, annotated](roadmap/img/viz-002-all-views-annotated.png)
 
-*Top row: color, base-color, view-dependent, depth, opacity.
-Bottom row: ellipses, centers, anisotropy, overdraw, quads.*
+*Bonsai, dataset camera 0. Each tile shows the viewer key, what to look for,
+numbered callouts, and a legend for the colormapped views. Regenerate with
+`python scripts/make_view_grid.py` (needs a release build and Pillow; use
+`--ply/--cam --no-callouts` for other scenes, since callout positions are
+specific to this view).*
 
 ## What a splat is
 
