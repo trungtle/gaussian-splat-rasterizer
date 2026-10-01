@@ -2,6 +2,8 @@
 name = "gaussian-splat-rasterizer"
 version = "0.1.0"
 edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "3D Gaussian Splatting rasterizer in Rust + vulkano, with Slang shaders and debug views"
 
 [dependencies]
 vulkano = "0.35"

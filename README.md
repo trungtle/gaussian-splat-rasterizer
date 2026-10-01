@@ -45,3 +45,14 @@ headless. See [docs/debug-views.md](docs/debug-views.md).
 
 Planned work (GPU sort, compute preprocess, tile rasterizer, tests) is tracked in
 [docs/ROADMAP.md](docs/ROADMAP.md).
+
+## Data
+
+Sample scenes are not included in the repo. `scripts/fetch_data.py` downloads them from
+the Hugging Face dataset [dylanebert/3dgs](https://huggingface.co/datasets/dylanebert/3dgs).
+Bonsai is a pretrained 3DGS model of the Mip-NeRF 360 bonsai scene.
+
+## License
+
+Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or
+[MIT license](LICENSE-MIT) at your option.
