@@ -55,7 +55,7 @@ in the roadmap.
 |----|------|-------|
 | `1cb2aa1` | Rasterizer: PLY loader, vulkano splat pipeline, headless + viewer | CORE-001..006 |
 | `59bcc6a` | Data fetch script, README, roadmap docs | CORE-007 |
-| `PENDING` | GLSL → Slang port + debug/visualization views | VIZ-001, VIZ-002 |
+| `4d55e79` | GLSL → Slang port + debug/visualization views | VIZ-001, VIZ-002 |
 
 Per-commit review: `git show <CL>`. For a merge commit `<merge>`, the branch's
 full diff is `git diff <merge>^1 <merge>^2` and its commits are

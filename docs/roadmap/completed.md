@@ -30,7 +30,7 @@ desktop discrete GPU.**
 **Status 2026-10-01: COMPLETE — the Slang port matches the GLSL render (max diff
 1/255, mean 1e-4); 10 debug views render headless and in the viewer.**
 
-**CL: `PENDING`** — VIZ-001, VIZ-002.
+**CL: `4d55e79`** — VIZ-001, VIZ-002.
 
 - `src/shaders/splat.slang` replaces `splat.vert` / `splat.frag`: same math,
   plus the view-mode switch, Turbo colormap, and splat-scale / min-opacity /
