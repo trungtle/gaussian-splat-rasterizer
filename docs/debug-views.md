@@ -32,7 +32,7 @@ front.
 
 | Key | View | What you are looking at | What to notice |
 |-----|------|-------------------------|----------------|
-| 1 | `color` | The final render. | — |
+| 1 | `color` | The final render. In the viewer, `1` also resets every knob below, so it always returns to the normal render. | — |
 | 2 | `base-color` | Only SH band 0, the color that is the same from every direction. | Almost identical to `color`: most appearance is view-independent. |
 | 3 | `view-dependent` | Only SH bands 1–3, shown as an offset from mid-grey. | Highlights and reflections (bike frame, wheel rims, the pot's glaze) change as you orbit. Grey means "no view dependence". |
 | 4 | `depth` | Alpha-blended expected depth with a turbo colormap (red = near, blue = far, log scale between the 2nd and 98th percentile). | The geometry the optimizer actually found. Background "walls" are often semi-transparent smears at the wrong depth. |

@@ -3,7 +3,7 @@
 //! Controls are listed in `HELP` (printed at startup).
 
 use crate::camera::Orbit;
-use crate::debug::ViewMode;
+use crate::debug::{DebugSettings, ViewMode};
 use crate::renderer::{Gpu, SplatRenderer};
 use crate::{Args, Framing, ply::Scene};
 use anyhow::Result;
@@ -28,7 +28,8 @@ use winit::{
 const HELP: &str = "viewer controls:
   left-drag orbit · right-drag pan · wheel zoom · Esc quit
   N / P       next / previous dataset camera     R  reset view
-  1..9, 0     view: 1 color  2 base-color  3 view-dependent  4 depth  5 opacity
+  1           normal render (also resets scale / opacity / SH / background)
+  2..9, 0     view: 2 base-color  3 view-dependent  4 depth  5 opacity
                     6 ellipses  7 centers  8 anisotropy  9 overdraw  0 quads
   [ / ]       shrink / grow splats (splat scale)
   - / =       lower / raise min-opacity filter
@@ -251,9 +252,16 @@ impl App {
                         self.orbit = self.framing.orbit(rcx.cam_index);
                     }
                     Key::Character(c) if c.len() == 1 && c.as_bytes()[0].is_ascii_digit() => {
-                        // 1..9 select modes 0..8, 0 selects mode 9.
+                        // 1..9 select modes 0..8, 0 selects mode 9. Other views keep the
+                        // knobs so they can be combined; 1 restores the normal render.
                         let d = (c.as_bytes()[0] - b'0') as usize;
-                        rcx.renderer.debug.view = ViewMode::ALL[(d + 9) % 10];
+                        if d == 1 {
+                            let bg = self.args.bg;
+                            rcx.renderer.debug = DebugSettings::default();
+                            rcx.renderer.background = [bg[0], bg[1], bg[2], 1.0];
+                        } else {
+                            rcx.renderer.debug.view = ViewMode::ALL[(d + 9) % 10];
+                        }
                     }
                     Key::Character("[") => rcx.renderer.debug.splat_scale *= 0.8,
                     Key::Character("]") => rcx.renderer.debug.splat_scale *= 1.25,
