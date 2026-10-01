@@ -1,0 +1,63 @@
+# Tooling & Formats — Roadmap
+
+Instrumentation, capture, and extra input formats.
+
+## Decisions
+
+- **Bench before optimizing** (2026-10-01): TOOL-001 gates the GPU area.
+
+## Tasks
+
+<!--task
+id: TOOL-001
+status: todo
+epic: perf
+deps: []
+-->
+### TOOL-001 — Frame timing / `--bench` mode
+
+GPU timestamp queries around the splat pass, CPU timers around sort and
+upload, and a `--bench <frames>` mode that orbits the scene headless and
+prints mean/p95 per stage.
+
+Verify: `--bench 300` on bonsai prints stable numbers (±5% across runs).
+
+<!--task
+id: TOOL-002
+status: todo
+epic: formats
+deps: []
+-->
+### TOOL-002 — `.splat` / `.spz` loaders
+
+Support the antimatter15 `.splat` (32 B/splat, no SH) and Niantic `.spz`
+compressed formats in addition to PLY.
+
+Verify: `bonsai-7k.splat` from the same HF dataset renders like the PLY
+(minus view-dependent color).
+
+<!--task
+id: TOOL-003
+status: todo
+epic: capture
+deps: []
+-->
+### TOOL-003 — Turntable / camera-path capture
+
+`--turntable <N>` writes N headless frames around the orbit (optionally
+walking the dataset cameras) for videos and popping analysis.
+
+Verify: 120 frames written; assembles with ffmpeg.
+
+<!--task
+id: TOOL-004
+status: todo
+epic: ui
+deps: []
+-->
+### TOOL-004 — Viewer overlay
+
+Minimal on-screen UI (egui) for SH degree override, splat scale,
+background, and stats.
+
+Verify: toggling SH degree 0 ↔ 3 visibly changes view-dependent highlights.
