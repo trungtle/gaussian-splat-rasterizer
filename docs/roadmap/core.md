@@ -42,7 +42,7 @@ id: CORE-001
 status: done
 epic: scaffold
 deps: []
-cl: 1cb2aa1
+cl: 27f8c9a
 -->
 ### CORE-001 — Crate scaffold
 
@@ -56,7 +56,7 @@ id: CORE-002
 status: done
 epic: io
 deps: [CORE-001]
-cl: 1cb2aa1
+cl: 27f8c9a
 -->
 ### CORE-002 — 3DGS PLY loader
 
@@ -72,7 +72,7 @@ id: CORE-003
 status: done
 epic: io
 deps: [CORE-001]
-cl: 1cb2aa1
+cl: 27f8c9a
 -->
 ### CORE-003 — Cameras: dataset JSON + orbit
 
@@ -86,7 +86,7 @@ id: CORE-004
 status: done
 epic: tooling
 deps: [CORE-001]
-cl: 1cb2aa1
+cl: 27f8c9a
 -->
 ### CORE-004 — Headless capture (`--out`)
 
@@ -100,7 +100,7 @@ id: CORE-005
 status: done
 epic: render
 deps: [CORE-002, CORE-003]
-cl: 1cb2aa1
+cl: 27f8c9a
 -->
 ### CORE-005 — Instanced splat pipeline with CPU sort
 
@@ -117,7 +117,7 @@ id: CORE-006
 status: done
 epic: viewer
 deps: [CORE-005]
-cl: 1cb2aa1
+cl: 27f8c9a
 -->
 ### CORE-006 — Interactive viewer
 
@@ -131,7 +131,7 @@ id: CORE-007
 status: done
 epic: io
 deps: []
-cl: 59bcc6a
+cl: ad4f5a3
 -->
 ### CORE-007 — Sample data fetch script
 

@@ -9,7 +9,7 @@ for review. One section per shipped milestone, newest last.
 correctly headless and in the viewer; 0 validation errors; ~213 fps static on a
 desktop discrete GPU.**
 
-**CL: `1cb2aa1`** — CORE-001..006. Review with `git show 1cb2aa1`.
+**CL: `27f8c9a`** — CORE-001..006. Review with `git show 27f8c9a`.
 
 - `src/ply.rs` — PLY parser, activations, 3D covariance, SH reorder
   (`f_rest` is channel-major in the file, `[coeff][rgb]` on the GPU).
@@ -23,14 +23,14 @@ desktop discrete GPU.**
 - `src/main.rs` — CLI, scene framing (robust radius, up axis,
   ray-intersection target), headless path.
 
-**CL: `59bcc6a`** — CORE-007 (`scripts/fetch_data.py`), README, and this roadmap.
+**CL: `ad4f5a3`** — CORE-007 (`scripts/fetch_data.py`), README, and this roadmap.
 
 ## Slang shaders + debug views (VIZ-001..002)
 
 **Status 2026-10-01: COMPLETE — the Slang port matches the GLSL render (max diff
 1/255, mean 1e-4); 10 debug views render headless and in the viewer.**
 
-**CL: `4d55e79`** — VIZ-001, VIZ-002.
+**CL: `fd4b26c`** — VIZ-001, VIZ-002.
 
 - `src/shaders/splat.slang` replaces `splat.vert` / `splat.frag`: same math,
   plus the view-mode switch, Turbo colormap, and splat-scale / min-opacity /
