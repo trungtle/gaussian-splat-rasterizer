@@ -2,10 +2,9 @@
 """Download sample 3D Gaussian Splatting scenes into data/.
 
 Source: Hugging Face dataset dylanebert/3dgs (pretrained INRIA 3DGS outputs).
-  luigi   ~1 MB    SH degree 0, small object (quick smoke test)
   bonsai  ~287 MB  SH degree 3, Mip-NeRF 360 scene, 7k iterations, + cameras.json
 
-usage: python scripts/fetch_data.py [luigi] [bonsai]   (default: both)
+usage: python scripts/fetch_data.py [bonsai]   (default: all scenes)
 """
 import sys
 import urllib.request
@@ -14,7 +13,6 @@ from pathlib import Path
 BASE = "https://huggingface.co/datasets/dylanebert/3dgs/resolve/main"
 ROOT = Path(__file__).resolve().parent.parent / "data"
 SCENES = {
-    "luigi": [("luigi/luigi.ply", "luigi.ply")],
     "bonsai": [
         ("bonsai/cameras.json", "bonsai/cameras.json"),
         ("bonsai/point_cloud/iteration_7000/point_cloud.ply", "bonsai/point_cloud.ply"),

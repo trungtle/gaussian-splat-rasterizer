@@ -35,7 +35,7 @@ in the roadmap.
 | Core pipeline | [core.md](roadmap/core.md) | 0 | 7 | Milestone 1 complete: bonsai 1.16 M splats renders correctly, ~213 fps static |
 | GPU & perf | [gpu.md](roadmap/gpu.md) | 5 | 0 | CPU counting sort is the bottleneck while the camera moves; gated on TOOL-001 + QUAL-001 |
 | Quality | [quality.md](roadmap/quality.md) | 4 | 0 | No numeric ground truth yet — QUAL-001 golden test is the safety net for GPU work |
-| Tooling & formats | [tools.md](roadmap/tools.md) | 4 | 0 | TOOL-001 bench mode gates the GPU area |
+| Tooling & formats | [tools.md](roadmap/tools.md) | 3 | 1 | TOOL-001 bench mode gates the GPU area; turntable capture done (README GIF) |
 | Shaders & viz | [viz.md](roadmap/viz.md) | 3 | 2 | Shaders now Slang (`slangc` in build.rs); 10 debug views — guide in [debug-views.md](debug-views.md) |
 
 ![bonsai, dataset camera 0](roadmap/img/core-005-bonsai-cam0.png)
@@ -57,6 +57,7 @@ in the roadmap.
 | `ad4f5a3` | Data fetch script, README, roadmap docs | CORE-007 |
 | `fd4b26c` | GLSL → Slang port + debug/visualization views | VIZ-001, VIZ-002 |
 | `7e78d3b`, `40cce82` | Annotated view grid; key 1 resets to normal render | VIZ-002 follow-ups |
+| `PENDING` | Turntable capture + README GIF, views in README, test scene removed | TOOL-003 |
 
 Per-commit review: `git show <CL>`. For a merge commit `<merge>`, the branch's
 full diff is `git diff <merge>^1 <merge>^2` and its commits are

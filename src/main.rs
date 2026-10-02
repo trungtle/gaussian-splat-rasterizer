@@ -22,6 +22,7 @@ options:
   --bg <r,g,b>              background color in 0..1 (default 0,0,0)
   --up <x,y,z>              world up axis (default: from cameras, else 0,1,0)
   --orbit <deg>             headless: rotate the start view around the scene by deg
+  --turntable <N>           headless: write N frames of a full orbit as <out-stem>-000.png ...
 
 debug / visualization:
   --view <mode|all>         color, base-color, view-dependent, depth, opacity, ellipses,
@@ -43,6 +44,8 @@ pub struct Args {
     pub debug: DebugSettings,
     /// Headless: render every view mode.
     pub all_views: bool,
+    /// Headless: number of frames for a full orbit (0 = single frame).
+    pub turntable: u32,
 }
 
 fn parse_vec3(s: &str) -> Result<[f32; 3]> {
@@ -66,6 +69,7 @@ fn parse_args() -> Result<Args> {
         orbit_deg: 0.0,
         debug: DebugSettings::default(),
         all_views: false,
+        turntable: 0,
     };
     let mut ply = None;
     while let Some(arg) = it.next() {
@@ -86,6 +90,7 @@ fn parse_args() -> Result<Args> {
             "--bg" => a.bg = parse_vec3(&val()?)?,
             "--up" => a.up = Some(Vec3::from(parse_vec3(&val()?)?)),
             "--orbit" => a.orbit_deg = val()?.parse()?,
+            "--turntable" => a.turntable = val()?.parse()?,
             "--view" => match val()?.as_str() {
                 "all" => a.all_views = true,
                 v => a.debug.view = ViewMode::from_name(v).with_context(|| format!("unknown view {v}
@@ -200,6 +205,21 @@ fn headless(args: &Args, scene: &ply::Scene, framing: &Framing, out: &PathBuf) -
     r.background = [args.bg[0], args.bg[1], args.bg[2], 1.0];
 
     let (w, mut h) = args.size;
+    if args.turntable > 0 {
+        r.debug = args.debug;
+        let stem = out.file_stem().unwrap_or_default().to_string_lossy();
+        let base = framing.orbit(args.cam);
+        let t = std::time::Instant::now();
+        for i in 0..args.turntable {
+            let mut o = base.clone();
+            o.yaw += args.orbit_deg.to_radians() + std::f32::consts::TAU * i as f32 / args.turntable as f32;
+            let pixels = renderer::render_offscreen(&gpu, &mut r, &o.camera(h), w, h)?;
+            let path = out.with_file_name(format!("{stem}-{i:03}.png"));
+            image::save_buffer(&path, &pixels, w, h, image::ExtendedColorType::Rgba8)?;
+        }
+        eprintln!("wrote {} turntable frames ({w}x{h}) in {:.2?}", args.turntable, t.elapsed());
+        return Ok(());
+    }
     let cam: Camera = match framing.dataset.get(args.cam) {
         Some(dc) if args.orbit_deg == 0.0 => {
             h = (w as f32 * dc.height as f32 / dc.width as f32).round() as u32;

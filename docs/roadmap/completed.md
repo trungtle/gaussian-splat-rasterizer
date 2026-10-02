@@ -5,7 +5,7 @@ for review. One section per shipped milestone, newest last.
 
 ## Milestone 1 — Working rasterizer (CORE-001..007)
 
-**Status 2026-10-01: COMPLETE — bonsai (1.16 M splats, SH 3) and luigi render
+**Status 2026-10-01: COMPLETE — bonsai (1.16 M splats, SH 3) and a small SH-0 test scene render
 correctly headless and in the viewer; 0 validation errors; ~213 fps static on a
 desktop discrete GPU.**
 

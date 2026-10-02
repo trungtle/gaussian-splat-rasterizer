@@ -94,6 +94,7 @@ pub fn load_cameras(path: &Path) -> Result<Vec<DatasetCamera>> {
 }
 
 /// Orbit controller for the interactive viewer.
+#[derive(Clone)]
 pub struct Orbit {
     pub target: Vec3,
     pub distance: f32,

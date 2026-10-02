@@ -38,16 +38,21 @@ Verify: `bonsai-7k.splat` from the same HF dataset renders like the PLY
 
 <!--task
 id: TOOL-003
-status: todo
+status: done
 epic: capture
 deps: []
+cl: PENDING
 -->
-### TOOL-003 — Turntable / camera-path capture
+### TOOL-003 — Turntable capture
 
-`--turntable <N>` writes N headless frames around the orbit (optionally
-walking the dataset cameras) for videos and popping analysis.
+`--turntable <N>` writes N headless frames of a full orbit around the scene
+target, starting from `--cam` and offset by `--orbit`, all in one process.
+`scripts/make_turntable_gif.py` encodes them into the README GIF with
+ffmpeg (palettegen/paletteuse: 320 px, 40 frames, 12 fps, 64 colors,
+about 1.1 MB). Walking the dataset camera path is not done yet.
 
-Verify: 120 frames written; assembles with ffmpeg.
+Verify: 40 frames at 320×214 render in 0.52 s (60 at 480×320 in 0.84 s);
+[GIF](img/tool-003-turntable.gif).
 
 <!--task
 id: TOOL-004

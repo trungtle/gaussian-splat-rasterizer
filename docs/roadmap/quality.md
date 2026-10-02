@@ -19,8 +19,9 @@ deps: []
 -->
 ### QUAL-001 — Golden-image regression test
 
-`cargo test` renders luigi (and bonsai cam 0 if present) headless and
-compares to committed goldens with a PSNR / max-diff threshold.
+`cargo test` renders a small procedurally generated Gaussian scene (no
+download needed, and bonsai cam 0 if present) headless and compares to
+committed goldens with a PSNR / max-diff threshold.
 
 Verify: test passes; deliberately flipping an SH sign makes it fail.
 

@@ -64,7 +64,7 @@ cl: 27f8c9a
 applied at load (exp scale, sigmoid opacity, normalized wxyz quaternion);
 SH degree inferred from `f_rest_*` count (0/9/24/45).
 
-Verify: luigi (14 526 splats, deg 0) and bonsai (1 157 141, deg 3) load;
+Verify: a small SH-0 scene (14 526 splats) and bonsai (1 157 141, deg 3) load;
 bonsai in ~0.27 s.
 
 <!--task
@@ -110,7 +110,7 @@ back-to-front blending, counting sort over view depth.
 
 Verify: renders match the expected look with no validation errors
 (`VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation` → 0 VUIDs).
-Result: [bonsai](img/core-005-bonsai-cam0.png), [luigi](img/core-005-luigi.png).
+Result: [bonsai](img/core-005-bonsai-cam0.png).
 
 <!--task
 id: CORE-006
@@ -135,8 +135,7 @@ cl: ad4f5a3
 -->
 ### CORE-007 — Sample data fetch script
 
-`scripts/fetch_data.py` downloads luigi (~1 MB) and bonsai 7k (~287 MB +
-cameras.json) from the Hugging Face `dylanebert/3dgs` dataset into `data/`
+`scripts/fetch_data.py` downloads bonsai 7k (~287 MB + cameras.json) from the Hugging Face `dylanebert/3dgs` dataset into `data/`
 (gitignored).
 
 Verify: `python scripts/fetch_data.py` is idempotent ("exists:" on rerun).
