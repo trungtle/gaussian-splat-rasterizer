@@ -9,7 +9,7 @@ cargo run --release -- data/bonsai/point_cloud.ply --view depth
 cargo run --release -- data/bonsai/point_cloud.ply --out out/b.png --view all
 ```
 
-![all views, annotated](roadmap/img/viz-002-all-views-annotated.png)
+![all views, annotated](roadmap/img/viz-002-all-views-annotated.jpg)
 
 *Bonsai, dataset camera 0. Each tile shows the viewer key, what to look for,
 numbered callouts, and a legend for the colormapped views. Regenerate with

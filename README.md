@@ -36,7 +36,7 @@ Run with `--help` for all options.
 
 ## Debug views
 
-![all debug views, annotated](docs/roadmap/img/viz-002-all-views-annotated.png)
+![all debug views, annotated](docs/roadmap/img/viz-002-all-views-annotated.jpg)
 
 *Bonsai, dataset camera 0. Badges show the viewer key; numbered callouts mark the
 features each caption mentions.*

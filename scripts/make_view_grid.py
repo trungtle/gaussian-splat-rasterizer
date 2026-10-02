@@ -130,7 +130,7 @@ def main():
     ap.add_argument("--ply", default=str(ROOT / "data/bonsai/point_cloud.ply"))
     ap.add_argument("--cam", default="0")
     ap.add_argument("--width", type=int, default=640, help="tile width")
-    ap.add_argument("--out", default=str(ROOT / "docs/roadmap/img/viz-002-all-views-annotated.png"))
+    ap.add_argument("--out", default=str(ROOT / "docs/roadmap/img/viz-002-all-views-annotated.jpg"))
     ap.add_argument("--no-callouts", action="store_true")
     args = ap.parse_args()
 
@@ -166,7 +166,7 @@ def main():
         if legend:
             draw_legend(d, x, y + HEADER_H + th + CAPTION_H, tw, legend, f_small)
 
-    grid.save(args.out, optimize=True)
+    grid.save(args.out, quality=85, optimize=True)  # .jpg keeps the README light (~1 MB)
     print(f"wrote {args.out} ({grid.size[0]}x{grid.size[1]})")
 
 
