@@ -57,7 +57,7 @@ in the roadmap.
 | `ad4f5a3` | Data fetch script, README, roadmap docs | CORE-007 |
 | `fd4b26c` | GLSL → Slang port + debug/visualization views | VIZ-001, VIZ-002 |
 | `7e78d3b`, `40cce82` | Annotated view grid; key 1 resets to normal render | VIZ-002 follow-ups |
-| `PENDING` | Turntable capture + README GIF, views in README, test scene removed | TOOL-003 |
+| `7593585` | Turntable capture + README GIF, views in README, test scene removed | TOOL-003 |
 
 Per-commit review: `git show <CL>`. For a merge commit `<merge>`, the branch's
 full diff is `git diff <merge>^1 <merge>^2` and its commits are

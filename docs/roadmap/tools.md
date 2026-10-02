@@ -41,7 +41,7 @@ id: TOOL-003
 status: done
 epic: capture
 deps: []
-cl: PENDING
+cl: 7593585
 -->
 ### TOOL-003 — Turntable capture
 
