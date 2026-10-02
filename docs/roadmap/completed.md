@@ -23,14 +23,14 @@ desktop discrete GPU.**
 - `src/main.rs` — CLI, scene framing (robust radius, up axis,
   ray-intersection target), headless path.
 
-**CL: `ad4f5a3`** — CORE-007 (`scripts/fetch_data.py`), README, and this roadmap.
+**CL: `6b70e4c`** — CORE-007 (`scripts/fetch_data.py`), README, and this roadmap.
 
 ## Slang shaders + debug views (VIZ-001..002)
 
 **Status 2026-10-01: COMPLETE — the Slang port matches the GLSL render (max diff
 1/255, mean 1e-4); 10 debug views render headless and in the viewer.**
 
-**CL: `fd4b26c`** — VIZ-001, VIZ-002.
+**CL: `ef37ff1`** — VIZ-001, VIZ-002.
 
 - `src/shaders/splat.slang` replaces `splat.vert` / `splat.frag`: same math,
   plus the view-mode switch, Turbo colormap, and splat-scale / min-opacity /

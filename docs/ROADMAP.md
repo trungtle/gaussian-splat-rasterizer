@@ -54,10 +54,10 @@ in the roadmap.
 | CL | What | Tasks |
 |----|------|-------|
 | `27f8c9a` | Rasterizer: PLY loader, vulkano splat pipeline, headless + viewer | CORE-001..006 |
-| `ad4f5a3` | Data fetch script, README, roadmap docs | CORE-007 |
-| `fd4b26c` | GLSL → Slang port + debug/visualization views | VIZ-001, VIZ-002 |
-| `7e78d3b`, `40cce82` | Annotated view grid; key 1 resets to normal render | VIZ-002 follow-ups |
-| `7593585` | Turntable capture + README GIF, views in README, test scene removed | TOOL-003 |
+| `6b70e4c` | Data fetch script, README, roadmap docs | CORE-007 |
+| `ef37ff1` | GLSL → Slang port + debug/visualization views | VIZ-001, VIZ-002 |
+| `17ba92e`, `24ce80a` | Annotated view grid; key 1 resets to normal render | VIZ-002 follow-ups |
+| `6026e55` | Turntable capture + README GIF, views in README, test scene removed | TOOL-003 |
 
 Per-commit review: `git show <CL>`. For a merge commit `<merge>`, the branch's
 full diff is `git diff <merge>^1 <merge>^2` and its commits are

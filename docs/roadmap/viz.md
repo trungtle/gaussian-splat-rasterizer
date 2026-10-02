@@ -33,7 +33,7 @@ id: VIZ-001
 status: done
 epic: shaders
 deps: [CORE-005]
-cl: fd4b26c
+cl: ef37ff1
 -->
 ### VIZ-001 — Port shaders from GLSL to Slang
 
@@ -48,7 +48,7 @@ id: VIZ-002
 status: done
 epic: debug-views
 deps: [VIZ-001]
-cl: fd4b26c
+cl: ef37ff1
 -->
 ### VIZ-002 — Debug views and knobs
 
